@@ -140,6 +140,9 @@ L.Map.TouchGestures = L.Handler.extend({
         var moveFn = map._move.bind(map, this._center, this._zoom, { pinch: true, round: false }, undefined);
         this._animRequest = L.Util.requestAnimFrame(moveFn, this, true);
         
+        /**
+         * @see https://github.com/Raruto/leaflet-rotate/issues/43
+         */
         if (this.zoom) {
             // Pinch updates GridLayers' levels only when zoomSnap is off, so zoomSnap becomes noUpdate.
             if (this._map.options.zoomAnimation) {
