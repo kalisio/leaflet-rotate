@@ -8,6 +8,22 @@ const mapProto = L.extend({}, L.Map.prototype);
 
 L.Map.mergeOptions({ rotate: false, bearing: 0, });
 
+L.Map.prototype._animateZoomNoDelay = function (center, zoom, startAnim, noUpdate) { 
+    if (!this._mapPane) { return; }
+
+    if (startAnim) {
+        this._animatingZoom = true;
+
+        // remember what center/zoom to set after animation
+        this._animateToCenter = center;
+        this._animateToZoom = zoom;
+
+        this._mapPane.classList.add('leaflet-zoom-anim');
+    }
+    this._move(this._animateToCenter, this._animateToZoom, undefined, true);
+    this._onZoomTransitionEnd()
+}
+
 L.Map.include({
 
     /**
