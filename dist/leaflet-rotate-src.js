@@ -686,8 +686,6 @@
             // remember what center/zoom to set after animation
             this._animateToCenter = center;
             this._animateToZoom = zoom;
-
-            this._mapPane.classList.add('leaflet-zoom-anim');
         }
         this._move(this._animateToCenter, this._animateToZoom, undefined, true);
         this._onZoomTransitionEnd();
@@ -1590,6 +1588,9 @@
             var moveFn = map._move.bind(map, this._center, this._zoom, { pinch: true, round: false }, undefined);
             this._animRequest = L.Util.requestAnimFrame(moveFn, this, true);
             
+            /**
+             * @see https://github.com/Raruto/leaflet-rotate/issues/43
+             */
             if (this.zoom) {
                 // Pinch updates GridLayers' levels only when zoomSnap is off, so zoomSnap becomes noUpdate.
                 if (this._map.options.zoomAnimation) {
