@@ -17,7 +17,14 @@ L.Map.mergeOptions({
      * @type {Boolean}
      */
     bounceAtZoomLimits: true,
-
+    /**
+     * Set a minimum bearing value (rotate threshold) to
+     * prevent map from rotating when user just wants to
+     * zoom.  
+     * 
+     * @type { number | undefined }
+     */
+    touchRotateIntertia: 0
 });
 
 L.Map.TouchGestures = L.Handler.extend({
@@ -47,6 +54,7 @@ L.Map.TouchGestures = L.Handler.extend({
 
         this._centerPoint = map.getSize()._divideBy(2);
         this._startLatLng = map.containerPointToLatLng(this._centerPoint);
+        this._center = this._startLatLng;
 
         if (this.zoom) {
             if (map.options.touchZoom !== 'center') {
@@ -88,12 +96,13 @@ L.Map.TouchGestures = L.Handler.extend({
             vector = p1.subtract(p2),
             scale = p1.distanceTo(p2) / this._startDist,
             delta;
+        var hasRotated, hasZoomed
 
         if (this._rotating) {
             var theta = Math.atan(vector.x / vector.y);
             var bearingDelta = (theta - this._startTheta) * L.DomUtil.RAD_TO_DEG;
             if (vector.y < 0) { bearingDelta += 180; }
-            if (bearingDelta) {
+            if (Math.abs(bearingDelta) > this._map.options.touchRotateInertia) {
                 /**
                  * @TODO the pivot should be the last touch point,
                  * but zoomAnimation manages to overwrite the rotate
@@ -103,18 +112,17 @@ L.Map.TouchGestures = L.Handler.extend({
                  * @see https://github.com/fnicollet/Leaflet/commit/a77af51a6b10f308d1b9a16552091d1d0aee8834
                  */
                 map.setBearing(this._startBearing - bearingDelta);
+                hasRotated = true
             }
         }
 
         if (this._zooming) {
             this._zoom = map.getScaleZoom(scale, this._startZoom);
-
             if (!map.options.bounceAtZoomLimits && (
                     (this._zoom < map.getMinZoom() && scale < 1) ||
                     (this._zoom > map.getMaxZoom() && scale > 1))) {
                 this._zoom = map._limitZoom(this._zoom);
             }
-
             if (map.options.touchZoom === 'center') {
                 this._center = this._startLatLng;
                 if (scale === 1) { return; }
@@ -127,31 +135,21 @@ L.Map.TouchGestures = L.Handler.extend({
 
                 this._center = map.unproject(map.project(this._pinchStartLatLng).subtract(delta.rotate(alpha)));
             }
-
+            hasZoomed = true
         }
 
         if (!this._moved) {
             map._moveStart(true, false);
             this._moved = true;
         }
-
         L.Util.cancelAnimFrame(this._animRequest);
-
-        var moveFn = map._move.bind(map, this._center, this._zoom, { pinch: true, round: false }, undefined);
+        var moveFn = map._move.bind(map, this._center, this._zoom, { pinch: true, round: false });
         this._animRequest = L.Util.requestAnimFrame(moveFn, this, true);
-        
-        /**
-         * @see https://github.com/Raruto/leaflet-rotate/issues/43
-         */
-        if (this.zoom) {
-            // Pinch updates GridLayers' levels only when zoomSnap is off, so zoomSnap becomes noUpdate.
-            if (this._map.options.zoomAnimation) {
-                this._map._animateZoomNoDelay(this._center, this._map._limitZoom(this._zoom), true, this._map.options.zoomSnap);
-            } else {
-                this._map._resetView(this._center, this._map._limitZoom(this._zoom));
-            }
+        if (hasZoomed) {
+            var zoomFn = map._animateZoomNoDelay.bind(map, this._center, this._map._limitZoom(this._zoom), true);
+            this._animZoomRequest = L.Util.requestAnimFrame(zoomFn, this, true);
         }
-
+        
         L.DomEvent.preventDefault(e);
     },
 
@@ -164,6 +162,7 @@ L.Map.TouchGestures = L.Handler.extend({
         this._zooming = false;
         this._rotating = false;
         L.Util.cancelAnimFrame(this._animRequest);
+        L.Util.cancelAnimFrame(this._animZoomRequest);
 
         L.DomEvent
             .off(document, 'touchmove', this._onTouchMove, this)
