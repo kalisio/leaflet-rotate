@@ -1,9 +1,10 @@
 # leaflet-rotate
 
-[![NPM version](https://img.shields.io/npm/v/leaflet-rotate.svg?color=red)](https://www.npmjs.com/package/leaflet-rotate)
-[![License](https://img.shields.io/badge/license-GPL%203-blue.svg?style=flat)](LICENSE)
+A Leaflet plugin that allows to add rotation functionality to map.
 
-A Leaflet plugin that allows to add rotation functionality to map tiles
+Forked from [Raruto/leaflet-rotate](https://github.com/Raruto/leaflet-rotate) as it does not seem to be maitaind anymore. Additional fix/features have been integrated:
+* new `touchRotateInertia` option to start rotating only when exceeding this thershold (see discussion in https://github.com/Raruto/leaflet-rotate/pull/48),
+* fix for floating layers while rotating/zooming the map (see discussion in https://github.com/Raruto/leaflet-rotate/pull/61).
 
 _For a working example see the following [demo](https://raruto.github.io/leaflet-rotate/examples/leaflet-rotate.html)_
 
