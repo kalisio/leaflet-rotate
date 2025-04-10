@@ -143,11 +143,14 @@ L.Map.TouchGestures = L.Handler.extend({
             this._moved = true;
         }
         L.Util.cancelAnimFrame(this._animRequest);
+        if (this._animZoomRequest) L.Util.cancelAnimFrame(this._animZoomRequest);
         var moveFn = map._move.bind(map, this._center, this._zoom, { pinch: true, round: false });
         this._animRequest = L.Util.requestAnimFrame(moveFn, this, true);
         if (hasZoomed) {
             var zoomFn = map._animateZoomNoDelay.bind(map, this._center, this._map._limitZoom(this._zoom), true);
             this._animZoomRequest = L.Util.requestAnimFrame(zoomFn, this, true);
+        } else {
+            this._animZoomRequest = null
         }
         
         L.DomEvent.preventDefault(e);

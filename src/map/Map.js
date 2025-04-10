@@ -208,14 +208,15 @@ L.Map.include({
      * Change map rotation
      * 
      * @param {number} theta map degrees
+     * @param {L.Point} rotation center offset in screen pixels to apply
      * 
      * @since leaflet-rotate (v0.1)
      */
-    setBearing: function(theta) {
+    setBearing: function(theta, offset = L.point(0, 0)) {
         if (!L.Browser.any3d || !this._rotate) { return; }
 
         var bearing = L.Util.wrapNum(theta, [0, 360]) * L.DomUtil.DEG_TO_RAD,
-            center = this._getPixelCenter(),
+            center = this._getPixelCenter().add(L.point(offset)),
             oldPos = this._getRotatePanePos().rotateFrom(-this._bearing, center),
             newPos = oldPos.rotateFrom(bearing, center);
 

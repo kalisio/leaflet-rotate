@@ -877,14 +877,15 @@
          * Change map rotation
          * 
          * @param {number} theta map degrees
+         * @param {L.Point} rotation center offset in screen pixels to apply
          * 
          * @since leaflet-rotate (v0.1)
          */
-        setBearing: function(theta) {
+        setBearing: function(theta, offset = L.point(0, 0)) {
             if (!L.Browser.any3d || !this._rotate) { return; }
 
             var bearing = L.Util.wrapNum(theta, [0, 360]) * L.DomUtil.DEG_TO_RAD,
-                center = this._getPixelCenter(),
+                center = this._getPixelCenter().add(L.point(offset)),
                 oldPos = this._getRotatePanePos().rotateFrom(-this._bearing, center),
                 newPos = oldPos.rotateFrom(bearing, center);
 
@@ -1591,11 +1592,14 @@
                 this._moved = true;
             }
             L.Util.cancelAnimFrame(this._animRequest);
+            if (this._animZoomRequest) L.Util.cancelAnimFrame(this._animZoomRequest);
             var moveFn = map._move.bind(map, this._center, this._zoom, { pinch: true, round: false });
             this._animRequest = L.Util.requestAnimFrame(moveFn, this, true);
             if (hasZoomed) {
                 var zoomFn = map._animateZoomNoDelay.bind(map, this._center, this._map._limitZoom(this._zoom), true);
                 this._animZoomRequest = L.Util.requestAnimFrame(zoomFn, this, true);
+            } else {
+                this._animZoomRequest = null;
             }
             
             L.DomEvent.preventDefault(e);
