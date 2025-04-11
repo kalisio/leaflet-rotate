@@ -4,7 +4,8 @@ A Leaflet plugin that allows to add rotation functionality to map.
 
 Forked from [Raruto/leaflet-rotate](https://github.com/Raruto/leaflet-rotate) as it does not seem to be maitaind anymore. Additional fix/features have been integrated:
 * new `touchRotateInertia` option to start rotating only when exceeding this thershold (see discussion in https://github.com/Raruto/leaflet-rotate/pull/48),
-* fix for floating layers while rotating/zooming the map (see discussion in https://github.com/Raruto/leaflet-rotate/pull/61).
+* fix for floating layers while rotating/zooming the map (see discussion in https://github.com/Raruto/leaflet-rotate/pull/61),
+* new `offset` option for the `setBearing` method to allow off-centered rotation in screen-space pixels.
 
 _For a working example see the following [demo](https://raruto.github.io/leaflet-rotate/examples/leaflet-rotate.html)_
 
