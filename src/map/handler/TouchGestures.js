@@ -176,7 +176,7 @@ L.Map.TouchGestures = L.Handler.extend({
             if (this._map.options.zoomAnimation) {
                 this._map._animateZoom(this._center, this._map._limitZoom(this._zoom), true, this._map.options.zoomSnap);
             } else {
-                this._map._resetView(this._center, this._map._limitZoom(this._zoom));
+                this._map._animateZoomNoDelay(this._center, this._map._limitZoom(this._zoom), true);
             }
         }
     },

@@ -8,7 +8,7 @@ const mapProto = L.extend({}, L.Map.prototype);
 
 L.Map.mergeOptions({ rotate: false, bearing: 0, });
 
-L.Map.prototype._animateZoomNoDelay = function (center, zoom, startAnim, noUpdate) { 
+L.Map.prototype._animateZoomNoDelay = function (center, zoom, startAnim) { 
     if (!this._mapPane) { return; }
 
     if (startAnim) {

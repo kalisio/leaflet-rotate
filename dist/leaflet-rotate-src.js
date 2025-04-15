@@ -677,7 +677,7 @@
 
     L.Map.mergeOptions({ rotate: false, bearing: 0, });
 
-    L.Map.prototype._animateZoomNoDelay = function (center, zoom, startAnim, noUpdate) { 
+    L.Map.prototype._animateZoomNoDelay = function (center, zoom, startAnim) { 
         if (!this._mapPane) { return; }
 
         if (startAnim) {
@@ -1625,7 +1625,7 @@
                 if (this._map.options.zoomAnimation) {
                     this._map._animateZoom(this._center, this._map._limitZoom(this._zoom), true, this._map.options.zoomSnap);
                 } else {
-                    this._map._resetView(this._center, this._map._limitZoom(this._zoom));
+                    this._map._animateZoomNoDelay(this._center, this._map._limitZoom(this._zoom), true);
                 }
             }
         },
@@ -1769,6 +1769,12 @@
     L.Map.TouchZoom = L.Handler.extend({
 
         addHooks: function() {
+            // We replace the default touch zoom of Leaflet so that we need to remove handlers if already registered
+            // Cannot find a better way to retrieve the previous handler as when entering the hook the handler
+            // has already been replaced by the new one in map['touchZoom']
+            this._map._handlers.forEach(handler => {
+                if (typeof handler._onTouchMove === 'function') handler.disable();
+            });
             L.DomUtil.addClass(this._map._container, 'leaflet-touch-zoom');
             this._map.touchGestures.enable();
             this._map.touchGestures.zoom = true;

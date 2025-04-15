@@ -35,6 +35,12 @@ L.Map.mergeOptions({
 L.Map.TouchZoom = L.Handler.extend({
 
     addHooks: function() {
+        // We replace the default touch zoom of Leaflet so that we need to remove handlers if already registered
+        // Cannot find a better way to retrieve the previous handler as when entering the hook the handler
+        // has already been replaced by the new one in map['touchZoom']
+        this._map._handlers.forEach(handler => {
+            if (typeof handler._onTouchMove === 'function') handler.disable();
+        });
         L.DomUtil.addClass(this._map._container, 'leaflet-touch-zoom');
         this._map.touchGestures.enable();
         this._map.touchGestures.zoom = true;
